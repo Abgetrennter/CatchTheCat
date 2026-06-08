@@ -9,7 +9,7 @@ class CatchTheCatApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '围住小猫',
-      theme: AppTheme.light,
+      theme: AppTheme.light(context),
       home: const GameScreen(),
       debugShowCheckedModeBanner: false,
     );

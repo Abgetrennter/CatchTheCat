@@ -13,13 +13,12 @@ class GameScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('围住小猫'),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: DifficultySelector(),
             ),
             const Expanded(
@@ -31,7 +30,7 @@ class GameScreen extends StatelessWidget {
               ),
             ),
             const GameStatusBar(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             const ControlButtons(),
             const SizedBox(height: 16),
           ],

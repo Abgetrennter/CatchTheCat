@@ -9,19 +9,20 @@ class GameStatusBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final color = switch (gameState.status) {
+      GameStatus.playerWin => colorScheme.tertiary,
+      GameStatus.catEscaped => colorScheme.error,
+      GameStatus.playing => colorScheme.onSurfaceVariant,
+    };
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Text(
         gameState.message,
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: gameState.status == GameStatus.playerWin
-                  ? Colors.green
-                  : gameState.status == GameStatus.catEscaped
-                      ? Colors.red
-                      : null,
-            ),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color),
       ),
     );
   }

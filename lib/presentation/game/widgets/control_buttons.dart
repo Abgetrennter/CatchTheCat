@@ -16,29 +16,17 @@ class ControlButtons extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          FilledButton.tonal(
+          FilledButton.tonalIcon(
             onPressed: gameState.status == GameStatus.playing
                 ? () => notifier.undo()
                 : null,
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.undo, size: 18),
-                SizedBox(width: 4),
-                Text('悔棋'),
-              ],
-            ),
+            icon: const Icon(Icons.undo_rounded),
+            label: const Text('悔棋'),
           ),
-          FilledButton(
+          FilledButton.icon(
             onPressed: () => notifier.newGame(),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.refresh, size: 18),
-                SizedBox(width: 4),
-                Text('重开'),
-              ],
-            ),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('重开'),
           ),
         ],
       ),

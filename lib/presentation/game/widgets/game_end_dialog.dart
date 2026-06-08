@@ -9,6 +9,7 @@ class GameEndDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (gameState.status == GameStatus.playing) return const SizedBox.shrink();
 
@@ -16,35 +17,35 @@ class GameEndDialog extends ConsumerWidget {
 
     return Center(
       child: Card(
-        elevation: 8,
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 isWin ? '🎉' : '😿',
-                style: const TextStyle(fontSize: 48),
+                style: const TextStyle(fontSize: 52),
               ),
               const SizedBox(height: 12),
               Text(
                 isWin ? '你赢了！' : '你输了！',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: isWin ? Colors.green : Colors.red,
+                      color: isWin ? colorScheme.tertiary : colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
                 isWin ? '猫已经无路可走' : '猫已经跑到地图边缘',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
               ),
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: () {
-                  ref.read(gameProvider.notifier).newGame();
-                },
-                child: const Text('再来一局'),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => ref.read(gameProvider.notifier).newGame(),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('再来一局'),
               ),
             ],
           ),

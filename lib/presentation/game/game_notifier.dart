@@ -14,6 +14,10 @@ class GameStateModel {
   final List<MoveRecord> history;
   final Difficulty difficulty;
   final String message;
+  final int? prevCatCol;
+  final int? prevCatRow;
+  final int? lastWallCol;
+  final int? lastWallRow;
 
   const GameStateModel({
     required this.grid,
@@ -23,6 +27,10 @@ class GameStateModel {
     required this.history,
     required this.difficulty,
     required this.message,
+    this.prevCatCol,
+    this.prevCatRow,
+    this.lastWallCol,
+    this.lastWallRow,
   });
 
   GameStateModel copyWith({
@@ -33,6 +41,11 @@ class GameStateModel {
     List<MoveRecord>? history,
     Difficulty? difficulty,
     String? message,
+    int? prevCatCol,
+    int? prevCatRow,
+    int? lastWallCol,
+    int? lastWallRow,
+    bool clearAnimation = false,
   }) {
     return GameStateModel(
       grid: grid ?? this.grid,
@@ -42,6 +55,10 @@ class GameStateModel {
       history: history ?? this.history,
       difficulty: difficulty ?? this.difficulty,
       message: message ?? this.message,
+      prevCatCol: clearAnimation ? null : (prevCatCol ?? this.prevCatCol),
+      prevCatRow: clearAnimation ? null : (prevCatRow ?? this.prevCatRow),
+      lastWallCol: clearAnimation ? null : (lastWallCol ?? this.lastWallCol),
+      lastWallRow: clearAnimation ? null : (lastWallRow ?? this.lastWallRow),
     );
   }
 }
@@ -86,6 +103,8 @@ class GameNotifier extends Notifier<GameStateModel> {
         grid: newGrid,
         status: GameStatus.playerWin,
         message: '猫已经无路可走，你赢了！',
+        lastWallCol: col,
+        lastWallRow: row,
         history: [
           MoveRecord(
             catCol: state.catCol,
@@ -107,6 +126,8 @@ class GameNotifier extends Notifier<GameStateModel> {
         grid: newGrid,
         status: GameStatus.playerWin,
         message: '猫认输，你赢了！',
+        lastWallCol: col,
+        lastWallRow: row,
         history: [
           MoveRecord(
             catCol: state.catCol,
@@ -128,12 +149,16 @@ class GameNotifier extends Notifier<GameStateModel> {
         grid: newGrid,
         status: GameStatus.playerWin,
         message: '猫认输，你赢了！',
+        lastWallCol: col,
+        lastWallRow: row,
       );
       return;
     }
 
     final newCatCol = target.$1;
     final newCatRow = target.$2;
+    final oldCatCol = state.catCol;
+    final oldCatRow = state.catRow;
 
     // 检查猫是否逃到边缘
     if (HexNeighbors.isEdge(
@@ -144,10 +169,14 @@ class GameNotifier extends Notifier<GameStateModel> {
         catRow: newCatRow,
         status: GameStatus.catEscaped,
         message: '猫已经跑到地图边缘了，你输了！',
+        prevCatCol: oldCatCol,
+        prevCatRow: oldCatRow,
+        lastWallCol: col,
+        lastWallRow: row,
         history: [
           MoveRecord(
-            catCol: state.catCol,
-            catRow: state.catRow,
+            catCol: oldCatCol,
+            catRow: oldCatRow,
             wallCol: col,
             wallRow: row,
           ),
@@ -162,10 +191,14 @@ class GameNotifier extends Notifier<GameStateModel> {
       catCol: newCatCol,
       catRow: newCatRow,
       message: '点击小圆点，围住小猫',
+      prevCatCol: oldCatCol,
+      prevCatRow: oldCatRow,
+      lastWallCol: col,
+      lastWallRow: row,
       history: [
         MoveRecord(
-          catCol: state.catCol,
-          catRow: state.catRow,
+          catCol: oldCatCol,
+          catRow: oldCatRow,
           wallCol: col,
           wallRow: row,
         ),
