@@ -3,6 +3,7 @@ import 'widgets/hex_grid.dart';
 import 'widgets/game_status_bar.dart';
 import 'widgets/control_buttons.dart';
 import 'widgets/difficulty_selector.dart';
+import 'widgets/wall_count_slider.dart';
 import 'widgets/game_end_dialog.dart';
 
 class GameScreen extends StatelessWidget {
@@ -18,9 +19,10 @@ class GameScreen extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
               child: DifficultySelector(),
             ),
+            const WallCountSlider(),
             const Expanded(
               child: Stack(
                 children: [

@@ -14,6 +14,7 @@ class GameStateModel {
   final List<MoveRecord> history;
   final Difficulty difficulty;
   final String message;
+  final int initialWalls;
   final int? prevCatCol;
   final int? prevCatRow;
   final int? lastWallCol;
@@ -27,6 +28,7 @@ class GameStateModel {
     required this.history,
     required this.difficulty,
     required this.message,
+    this.initialWalls = 6,
     this.prevCatCol,
     this.prevCatRow,
     this.lastWallCol,
@@ -41,6 +43,7 @@ class GameStateModel {
     List<MoveRecord>? history,
     Difficulty? difficulty,
     String? message,
+    int? initialWalls,
     int? prevCatCol,
     int? prevCatRow,
     int? lastWallCol,
@@ -55,6 +58,7 @@ class GameStateModel {
       history: history ?? this.history,
       difficulty: difficulty ?? this.difficulty,
       message: message ?? this.message,
+      initialWalls: initialWalls ?? this.initialWalls,
       prevCatCol: clearAnimation ? null : (prevCatCol ?? this.prevCatCol),
       prevCatRow: clearAnimation ? null : (prevCatRow ?? this.prevCatRow),
       lastWallCol: clearAnimation ? null : (lastWallCol ?? this.lastWallCol),
@@ -66,15 +70,22 @@ class GameStateModel {
 class GameNotifier extends Notifier<GameStateModel> {
   @override
   GameStateModel build() {
-    return _newGame(Difficulty.hard);
+    return _newGame(Difficulty.hard, 6);
   }
 
   void newGame([Difficulty? difficulty]) {
-    state = _newGame(difficulty ?? state.difficulty);
+    state = _newGame(
+      difficulty ?? state.difficulty,
+      state.initialWalls,
+    );
   }
 
   void changeDifficulty(Difficulty difficulty) {
-    state = _newGame(difficulty);
+    state = _newGame(difficulty, state.initialWalls);
+  }
+
+  void setInitialWalls(int count) {
+    state = _newGame(state.difficulty, count);
   }
 
   void placeWall(int col, int row) {
@@ -230,7 +241,7 @@ class GameNotifier extends Notifier<GameStateModel> {
     );
   }
 
-  GameStateModel _newGame(Difficulty difficulty) {
+  GameStateModel _newGame(Difficulty difficulty, int wallCount) {
     final w = GameConstants.gridWidth;
     final h = GameConstants.gridHeight;
     final grid = List.generate(w, (_) => List.generate(h, (_) => false));
@@ -248,9 +259,10 @@ class GameNotifier extends Notifier<GameStateModel> {
       }
     }
 
+    final maxWalls = indices.length;
+    final count = min(wallCount, maxWalls);
     final rng = Random();
-    final wallCount = min(difficulty.initialWalls, indices.length);
-    for (var i = 0; i < wallCount; i++) {
+    for (var i = 0; i < count; i++) {
       final j = i + rng.nextInt(indices.length - i);
       final temp = indices[i];
       indices[i] = indices[j];
@@ -268,6 +280,7 @@ class GameNotifier extends Notifier<GameStateModel> {
       status: GameStatus.playing,
       history: const [],
       difficulty: difficulty,
+      initialWalls: wallCount,
       message: '点击小圆点，围住小猫',
     );
   }
