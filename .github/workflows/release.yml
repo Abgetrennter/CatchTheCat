@@ -1,0 +1,158 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Extract version
+        id: version
+        run: echo "value=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+  build-android:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-web:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release
+
+      - name: Upload Web
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: build/web/
+
+  build-windows:
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Upload Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: build/windows/x64/runner/Release/
+
+  release:
+    needs: [build, build-android, build-web, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Zip Windows build
+        run: |
+          cd artifacts/windows-release
+          zip -r ../../CatchTheCat-windows.zip .
+
+      - name: Zip Web build
+        run: |
+          cd artifacts/web-release
+          zip -r ../../CatchTheCat-web.zip .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CatchTheCat ${{ needs.build.outputs.version }}
+          body: |
+            ## 围住小猫 CatchTheCat ${{ needs.build.outputs.version }}
+
+            ### 下载 / Download
+            - **Android**: `app-release.apk`
+            - **Windows**: `CatchTheCat-windows.zip`
+            - **Web**: `CatchTheCat-web.zip` (解压后用浏览器打开 `index.html`)
+
+            ### 玩法 / How to play
+            点击圆形格子放置障碍，围住小猫不让它逃到边缘。
+            Click circles to place walls and trap the cat before it escapes to the edge.
+          files: |
+            artifacts/app-release.apk/app-release.apk
+            CatchTheCat-windows.zip
+            CatchTheCat-web.zip
+          draft: false
+          prerelease: false
