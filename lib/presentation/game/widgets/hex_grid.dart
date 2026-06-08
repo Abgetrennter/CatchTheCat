@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../domain/models/game_state.dart';
@@ -121,6 +122,7 @@ class _HexGridState extends ConsumerState<HexGrid>
                 );
 
                 if (cell != null) {
+                  HapticFeedback.mediumImpact();
                   ref.read(gameProvider.notifier).placeWall(cell.$1, cell.$2);
                 }
               },
