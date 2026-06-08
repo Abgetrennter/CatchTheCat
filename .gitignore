@@ -8,6 +8,15 @@
 .build/
 .buildlog/
 .history
+
+# Screenshots
+*.jpg
+*.png
+!android/app/src/main/res/mipmap-*/*
+!ios/Runner/Assets.xcassets/AppIcon.appiconset/*
+!macos/Runner/Assets.xcassets/AppIcon.appiconset/*
+!web/favicon.png
+!web/icons/*
 .svn/
 .swiftpm/
 migrate_working_dir/
